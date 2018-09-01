@@ -41,7 +41,8 @@ public class PointSET {
             throw new java.lang.IllegalArgumentException();
         TreeSet<Point2D> pointsInRect = new TreeSet<Point2D>();
         for (Point2D point2D : pointSets) {
-            pointsInRect.add(point2D);
+            if(rect.contains(point2D))
+             pointsInRect.add(point2D);
         }
         return pointsInRect;
     }          // all points that are inside the rectangle (or on the boundary)
@@ -55,7 +56,7 @@ public class PointSET {
         double nearest = Integer.MAX_VALUE;
         Point2D nearestPoint2D = new Point2D(0, 0);
         for (Point2D point2D : pointSets) {
-            double distance = point2D.distanceTo(p);
+            double distance = point2D.distanceSquaredTo(p);
             if (Math.abs(distance) < nearest) {
                 nearest = distance;
                 nearestPoint2D = point2D;
