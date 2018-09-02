@@ -1,13 +1,14 @@
 import edu.princeton.cs.algs4.Point2D;
-import edu.princeton.cs.algs4.Stack;
-import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
+
+import java.util.TreeSet;
 
 public class KdTree {
 
     private Node node;
     private int size;
     private boolean isVerticalOrientation;
+    private final RectHV DEFAULTRECT = new RectHV(0, 0, 1, 1);
 
     public KdTree() {
         this.node = null;
@@ -90,14 +91,53 @@ public class KdTree {
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null)
             throw new IllegalArgumentException();
-        Stack<Point2D> point2DStack = new Stack<Point2D>();
-        range(node, rect, point2DStack);
+        TreeSet<Point2D> point2DTreeSet = new TreeSet<Point2D>();
+        range(node, rect, DEFAULTRECT, point2DTreeSet);
 
-        return point2DStack;
+        return point2DTreeSet;
     }         // all points that are inside the rectangle (or on the boundary)
 
-    private void range(Node node, RectHV rectHV, Stack<Point2D> point2DStack) {
+    private void range(Node node, RectHV rectHV, RectHV defaultrect, TreeSet<Point2D> point2DTreeSet) {
+        if (node == null)
+            return;
+        //check if query rectangle intersects the splitting line segment
+        if (rectHV.intersects(defaultrect)) {
+            Point2D currentNodePoint = new Point2D(node.point2D.x(), node.point2D.y());
+            if (rectHV.contains(currentNodePoint))
+                point2DTreeSet.add(currentNodePoint);
 
+            //search both right and left subtrees
+            if (node.isVerticalOrientation) {
+                if (defaultrect.xmax() < currentNodePoint.x())
+                    range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
+                if (defaultrect.xmax() > currentNodePoint.x())
+                    range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
+
+            } else {
+                if (defaultrect.ymax() < currentNodePoint.y())
+                    range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
+                if (defaultrect.ymax() > currentNodePoint.y())
+                    range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
+            }
+
+            if (defaultrect.contains(currentNodePoint))
+                range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
+            range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
+        }
+    }
+
+    private RectHV getLeftRect(Node node) {
+        if (node.isVerticalOrientation)
+            return new RectHV(DEFAULTRECT.xmin(), DEFAULTRECT.ymin(), node.point2D.x(), DEFAULTRECT.ymax());
+        else
+            return new RectHV(DEFAULTRECT.xmin(), DEFAULTRECT.ymin(), DEFAULTRECT.xmax(), node.point2D.y());
+    }
+
+    private RectHV getRightRect(Node node) {
+        if (node.isVerticalOrientation)
+            return new RectHV(node.point2D.x(), DEFAULTRECT.ymin(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
+        else
+            return new RectHV(DEFAULTRECT.xmin(), node.point2D.y(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
     }
 
     public Point2D nearest(Point2D p) {
