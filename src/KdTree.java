@@ -25,8 +25,10 @@ public class KdTree {
     }                     // number of points in the set
 
     public void insert(Point2D p) {
+        //corner case
         if (p == null)
             throw new IllegalArgumentException();
+        //recursive call
         node = insert(node, p, true);
 
     }         // add the point to the set (if it is not already in the set)
@@ -44,10 +46,18 @@ public class KdTree {
             return node;
 
         // insert point if it does not exist
-        if (node.isVerticalOrientation && point2D.x() < node.point2D.x() || !node.isVerticalOrientation && point2D.y() < node.point2D.y()) {
-            node.lb = insert(node.lb, point2D, !node.isVerticalOrientation);
+        if (node.isVerticalOrientation) {
+            double cmp = point2D.x() - node.point2D.x();
+            if (cmp < 0)
+                node.lb = insert(node.lb, point2D, !node.isVerticalOrientation);
+            else
+                node.rt = insert(node.rt, point2D, !node.isVerticalOrientation);
         } else {
-            node.rt = insert(node.rt, point2D, !node.isVerticalOrientation);
+            double cmp = point2D.y() - node.point2D.y();
+            if (cmp < 0)
+                node.lb = insert(node.lb, point2D, !node.isVerticalOrientation);
+            else
+                node.rt = insert(node.rt, point2D, !node.isVerticalOrientation);
         }
         return node;
     }
