@@ -33,7 +33,7 @@ public class KdTree {
 
 
     private Node insert(Node node, Point2D point2D, boolean isVerticalOrientation) {
-        // if it is not in the set, create new node
+        // if node is empty, create a new node with the new point
         if (node == null) {
             size++;
             return new Node(point2D, isVerticalOrientation);
@@ -194,7 +194,7 @@ public class KdTree {
 
         Node(Point2D point2D, boolean isVerticalOrientation) {
             this.point2D = point2D;
-            this.rectHV = rectHV;
+            this.rectHV = null;
             this.lb = null;
             this.rt = null;
             this.isVerticalOrientation = isVerticalOrientation;
