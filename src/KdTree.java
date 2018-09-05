@@ -41,7 +41,7 @@ public class KdTree {
             return new Node(point2D, isVerticalOrientation);
         }
 
-        // check if point exist
+        // check if point exists
         if (node.point2D.equals(point2D))
             return node;
 
@@ -107,32 +107,18 @@ public class KdTree {
         return point2DTreeSet;
     }         // all points that are inside the rectangle (or on the boundary)
 
-    private void range(Node node, RectHV rectHV, RectHV defaultrect, TreeSet<Point2D> point2DTreeSet) {
+    private void range(Node node, RectHV rect, RectHV defaultrect, TreeSet<Point2D> point2DTreeSet) {
         if (node == null)
             return;
         //check if query rectangle intersects the splitting line segment
-        if (rectHV.intersects(defaultrect)) {
-            Point2D currentNodePoint = new Point2D(node.point2D.x(), node.point2D.y());
-            if (rectHV.contains(currentNodePoint))
+        if (rect.intersects(defaultrect)) {
+            Point2D currentNodePoint = node.point2D;
+            if (rect.contains(currentNodePoint))
                 point2DTreeSet.add(currentNodePoint);
 
             //search both right and left subtrees
-            if (node.isVerticalOrientation) {
-                if (defaultrect.xmax() < currentNodePoint.x())
-                    range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
-                if (defaultrect.xmax() > currentNodePoint.x())
-                    range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
-
-            } else {
-                if (defaultrect.ymax() < currentNodePoint.y())
-                    range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
-                if (defaultrect.ymax() > currentNodePoint.y())
-                    range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
-            }
-
-            if (defaultrect.contains(currentNodePoint))
-                range(node.lb, rectHV, getLeftRect(node), point2DTreeSet);
-            range(node.rt, rectHV, getRightRect(node), point2DTreeSet);
+            range(node.lb, rect, getLeftRect(node), point2DTreeSet);
+            range(node.rt, rect, getRightRect(node), point2DTreeSet);
         }
     }
 
