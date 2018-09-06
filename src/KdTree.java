@@ -7,7 +7,6 @@ import java.util.TreeSet;
 public class KdTree {
     private Point2D nearestPoint;
     private double nearestDistance;
-    private TreeSet<Point2D> point2DTreeSet;
     private Node node;
     private int size;
     private boolean isVerticalOrientation;
@@ -17,7 +16,6 @@ public class KdTree {
         this.node = null;
         this.size = 0;
         isVerticalOrientation = true;
-        point2DTreeSet = new TreeSet<Point2D>();
     }                            // construct an empty set of points
 
     public boolean isEmpty() {
@@ -127,6 +125,7 @@ public class KdTree {
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null)
             throw new IllegalArgumentException();
+        TreeSet<Point2D> point2DTreeSet = new TreeSet<Point2D>();
         range(node, rect, DEFAULTRECT, point2DTreeSet);
 
         return point2DTreeSet;
