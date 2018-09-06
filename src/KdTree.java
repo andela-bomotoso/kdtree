@@ -1,10 +1,13 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.TreeSet;
 
 public class KdTree {
-
+    private Point2D nearestPoint;
+    private double nearestDistance;
+    private TreeSet<Point2D> point2DTreeSet;
     private Node node;
     private int size;
     private boolean isVerticalOrientation;
@@ -14,6 +17,7 @@ public class KdTree {
         this.node = null;
         this.size = 0;
         isVerticalOrientation = true;
+        point2DTreeSet = new TreeSet<Point2D>();
     }                            // construct an empty set of points
 
     public boolean isEmpty() {
@@ -95,13 +99,34 @@ public class KdTree {
 
 
     public void draw() {
-
+        StdDraw.setScale(0, 1);
+        draw(node, DEFAULTRECT);
     }               // draw all points to standard draw
+
+    private void draw(Node node, RectHV rect) {
+        if (node != null) {
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.setPenRadius(0.02);
+            node.point2D.draw();
+            StdDraw.setPenRadius();
+
+            if (node.isVerticalOrientation) {
+                StdDraw.setPenColor(StdDraw.RED);
+                new Point2D(node.point2D.x(), DEFAULTRECT.ymin()).drawTo(new Point2D(node.point2D.x(), DEFAULTRECT.ymax()));
+            } else {
+                StdDraw.setPenColor(StdDraw.BLUE);
+                new Point2D(DEFAULTRECT.xmin(), node.point2D.y()).drawTo(new Point2D(DEFAULTRECT.xmax(), node.point2D.y()));
+
+            }
+
+            draw(node.lb, getLeftRect(node));
+            draw(node.rt, getRightRect(node));
+        }
+    }
 
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null)
             throw new IllegalArgumentException();
-        TreeSet<Point2D> point2DTreeSet = new TreeSet<Point2D>();
         range(node, rect, DEFAULTRECT, point2DTreeSet);
 
         return point2DTreeSet;
@@ -136,47 +161,31 @@ public class KdTree {
             return new RectHV(DEFAULTRECT.xmin(), node.point2D.y(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
     }
 
-    public Point2D nearest(Point2D p) {
-        return null;
-    }           // a nearest neighbor in the set to point p; null if the set is empty
+    public Point2D nearest(Point2D givenPoint) {
+
+        if (givenPoint == null)
+            throw new java.lang.NullPointerException();
+        if (isEmpty())
+            return null;
+        nearestPoint = node.point2D;
+        nearestDistance = nearestPoint.distanceTo(givenPoint);
+        nearest(node, givenPoint);
+        return nearestPoint;
+    } // a nearest neighbor in the set to point p; null if the set is empty
+
+    private void nearest(Node node, Point2D givenPoint) {
+        if (node == null)
+            return;
+        if (nearestDistance > givenPoint.distanceTo(node.point2D)) {
+            nearestPoint = node.point2D;
+            nearestDistance = givenPoint.distanceTo(node.point2D);
+        }
+        nearest(node.lb, givenPoint);
+        nearest(node.rt, givenPoint);
+    }
+
 
     public static void main(String[] args) {
-        KdTree kdTree = new KdTree();
-
-        kdTree.insert(new Point2D(0.5, 0.875));
-        kdTree.insert(new Point2D(1.0, 0.125));
-        kdTree.insert(new Point2D(0.6875, 0.4375));
-        kdTree.insert(new Point2D(0.5625, 0.75));
-        kdTree.insert(new Point2D(0.6875, 0.8125));
-        kdTree.insert(new Point2D(1.0, 0.375));
-        kdTree.insert(new Point2D(0.5625, 0.4375
-        ));
-        kdTree.insert(new Point2D(0.5625, 0.4375));
-
-        System.out.println(kdTree.size());
-
-        kdTree.insert(new Point2D(0.75, 0.375));
-        kdTree.insert(new Point2D(0.1875, 0.75));
-        kdTree.insert(new Point2D(0.375, 0.0));
-        kdTree.insert(new Point2D(0.625, 0.25));
-        kdTree.insert(new Point2D(0.4375, 0.0625));
-        kdTree.insert(new Point2D(0.125, 0.3125
-        ));
-        kdTree.insert(new Point2D(0.1875, 0.25));
-        kdTree.insert(new Point2D(0.25, 0.625));
-        kdTree.insert(new Point2D(1.0, 0.4375));
-        kdTree.insert(new Point2D(0.875, 0.1875));
-        kdTree.insert(new Point2D(0.375, 0.75));
-        kdTree.insert(new Point2D(0.0625, 0.5));
-        kdTree.insert(new Point2D(0.9375, 0.0625));
-        kdTree.insert(new Point2D(0.875, 0.0625
-        ));
-        kdTree.insert(new Point2D(1.0, 0.8125));
-        kdTree.insert(new Point2D(0.1875, 1.0));
-        kdTree.insert(new Point2D(0.9375, 0.9375));
-        kdTree.insert(new Point2D(0.75, 0.375));
-        System.out.println(kdTree.contains(new Point2D(0.1875, 0.75)));
-        System.out.println(kdTree.size());
 
 
     }
