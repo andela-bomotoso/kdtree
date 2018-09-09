@@ -9,13 +9,11 @@ public class KdTree {
     private double nearestDistance;
     private Node node;
     private int size;
-    private boolean isVerticalOrientation;
     private final RectHV DEFAULTRECT = new RectHV(0, 0, 1, 1);
 
     public KdTree() {
         this.node = null;
         this.size = 0;
-        isVerticalOrientation = true;
     }                            // construct an empty set of points
 
     public boolean isEmpty() {
@@ -26,41 +24,103 @@ public class KdTree {
         return size;
     }                     // number of points in the set
 
-    public void insert(Point2D p) {
-        //corner case
-        if (p == null)
+   /* public void insert(Point2D p) {
+//        //corner case
+//        if (p == null)
+//            throw new IllegalArgumentException();
+//        //recursive call
+//        node = insert(node, p, true);
+        if(p == null)
             throw new IllegalArgumentException();
-        //recursive call
+
         node = insert(node, p, true);
 
     }         // add the point to the set (if it is not already in the set)
-
-
-    private Node insert(Node node, Point2D point2D, boolean isVerticalOrientation) {
-        // if node is empty, create a new node with the new point
-        if (node == null) {
+    private Node insert(Node node, Point2D pointToInsert, boolean verticalorient)
+    {
+        if(node == null)
+        {
             size++;
-            return new Node(point2D, isVerticalOrientation);
+            return new Node(pointToInsert, verticalorient);
         }
 
-        // check if point exists
-        if (node.point2D.equals(point2D))
+        if(node.point2D.equals(pointToInsert))
             return node;
 
-        // insert point if it does not exist
-        if (node.isVerticalOrientation) {
-            double cmp = point2D.x() - node.point2D.x();
-            if (cmp < 0)
-                node.lb = insert(node.lb, point2D, !node.isVerticalOrientation);
+        double coordinatecompare = 0;
+
+        if(verticalorient)
+        {
+            coordinatecompare =(pointToInsert.x()) - (node.point2D.x());
+            verticalorient = (!verticalorient);
+
+            if(coordinatecompare < 0)
+                node.lb = insert(node.lb, pointToInsert, verticalorient);
+
             else
-                node.rt = insert(node.rt, point2D, !node.isVerticalOrientation);
-        } else {
-            double cmp = point2D.y() - node.point2D.y();
-            if (cmp < 0)
-                node.lb = insert(node.lb, point2D, !node.isVerticalOrientation);
-            else
-                node.rt = insert(node.rt, point2D, !node.isVerticalOrientation);
+                node.rt = insert(node.rt, pointToInsert, verticalorient);
         }
+
+        else
+        {
+            coordinatecompare =(pointToInsert.y()) - (node.point2D.y());
+            verticalorient = (!verticalorient);
+
+            if(coordinatecompare < 0)
+                node.lb = insert(node.lb, pointToInsert, verticalorient);
+
+            else
+                node.rt = insert(node.rt, pointToInsert, verticalorient);
+        }
+
+        return node;
+    }*/
+
+    public void insert(Point2D p) // add the point to the set (if it is not already in the set)
+    {
+        if (p == null)
+            throw new IllegalArgumentException();
+
+        node = insert(node, p, true);
+
+    }
+
+    private Node insert(Node node, Point2D pointToInsert, boolean verticalorient) {
+        if (node == null)
+        {
+            size++;
+            return new Node(pointToInsert, verticalorient);
+        }
+
+        if (node.point2D.equals(pointToInsert))
+            return node;
+
+        double coordinatecompare = 0;
+
+        if (verticalorient)
+        {
+            coordinatecompare = (pointToInsert.x()) - (node.point2D.x());
+            verticalorient = (!verticalorient);
+
+            if (coordinatecompare < 0)
+                node.lb = insert(node.lb, pointToInsert, verticalorient);
+
+            else
+                node.rt = insert(node.rt, pointToInsert, verticalorient);
+        }
+
+        else
+        {
+            coordinatecompare = (pointToInsert.y()) - (node.point2D.y());
+            verticalorient = (!verticalorient);
+
+            if (coordinatecompare < 0)
+                node.lb = insert(node.lb, pointToInsert, verticalorient);
+
+            else
+                node.rt = insert(node.rt, pointToInsert, verticalorient);
+        }
+
         return node;
     }
 
@@ -70,36 +130,62 @@ public class KdTree {
         return contains(node, p, true);
     }       // does the set contain point p?
 
-
-    private boolean contains(Node node, Point2D point2D, boolean orientation) {
-        if (node == null) {
+    private boolean contains(Node node, Point2D point, boolean verticalorient)
+    {
+        if(node == null)
             return false;
-        }
 
-        if (node.point2D.equals(point2D)) {
+        if(node.point2D.equals(point))
             return true;
-        }
 
-        double cmp;
-        if (orientation == isVerticalOrientation) {
-            cmp = point2D.x() - node.point2D.x();
-        } else {
-            cmp = point2D.y() - node.point2D.y();
-        }
+        double compare = 0;
 
+        if(verticalorient)
+            compare = (point.x()) - (node.point2D.x());
 
-        if (cmp < 0) {
-            return contains(node.lb, point2D, !orientation);
-        } else {
-            return contains(node.rt, point2D, !orientation);
-        }
+        else
+            compare = (point.y()) - (node.point2D.y());
+
+        if(compare < 0)
+            return contains(node.lb, point, !verticalorient);
+
+        else
+            return contains(node.rt, point, !verticalorient);
+
     }
 
 
     public void draw() {
-        StdDraw.setScale(0, 1);
-        draw(node, DEFAULTRECT);
+        extradraw(node, DEFAULTRECT);
     }               // draw all points to standard draw
+
+    private void extradraw (Node node, RectHV rect)
+    {
+
+        if(node!=null)
+        {
+            //nODE is not null at this point
+
+            StdDraw.setPenColor(StdDraw.BLACK) ;
+            StdDraw.setPenRadius(0.05);
+            node.point2D.draw();
+
+            if(node.isVerticalOrientation)
+            {
+                StdDraw.setPenColor(StdDraw.RED) ;
+                new Point2D(node.point2D.x(),0).drawTo(new Point2D(node.point2D.x(),1));
+            }
+
+            else
+            {
+                StdDraw.setPenColor(StdDraw.BLUE) ;
+                new Point2D(0,node.point2D.y()).drawTo(new Point2D(1,node.point2D.y()));
+            }
+            extradraw(node.lb, getLeftRect(node));
+            extradraw(node.rt, getRightRect(node));
+
+        }
+    }
 
     private void draw(Node node, RectHV rect) {
         if (node != null) {
@@ -110,10 +196,10 @@ public class KdTree {
 
             if (node.isVerticalOrientation) {
                 StdDraw.setPenColor(StdDraw.RED);
-                new Point2D(node.point2D.x(), DEFAULTRECT.ymin()).drawTo(new Point2D(node.point2D.x(), DEFAULTRECT.ymax()));
+                new Point2D(node.point2D.x(), rect.ymin()).drawTo(new Point2D(node.point2D.x(), rect.ymax()));
             } else {
                 StdDraw.setPenColor(StdDraw.BLUE);
-                new Point2D(DEFAULTRECT.xmin(), node.point2D.y()).drawTo(new Point2D(DEFAULTRECT.xmax(), node.point2D.y()));
+                new Point2D(rect.xmin(), node.point2D.y()).drawTo(new Point2D(rect.xmax(), node.point2D.y()));
 
             }
 
@@ -146,18 +232,31 @@ public class KdTree {
         }
     }
 
+//    private RectHV getLeftRect(Node node) {
+//        if (node.isVerticalOrientation)
+//            return new RectHV(0, 0, node.point2D.x(), 1);
+//        else
+//            return new RectHV(0, 0, 1, node.point2D.y());
+//    }
+//
+//    private RectHV getRightRect(Node node) {
+//        if (node.isVerticalOrientation)
+//            return new RectHV(node.point2D.x(), DEFAULTRECT.ymin(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
+//        else
+//            return new RectHV(DEFAULTRECT.xmin(), node.point2D.y(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
+//    }
+
     private RectHV getLeftRect(Node node) {
         if (node.isVerticalOrientation)
-            return new RectHV(DEFAULTRECT.xmin(), DEFAULTRECT.ymin(), node.point2D.x(), DEFAULTRECT.ymax());
+            return new RectHV(0, 0, node.point2D.x(), 1);
         else
-            return new RectHV(DEFAULTRECT.xmin(), DEFAULTRECT.ymin(), DEFAULTRECT.xmax(), node.point2D.y());
+            return new RectHV(0, 0, 1, node.point2D.y());
     }
-
     private RectHV getRightRect(Node node) {
         if (node.isVerticalOrientation)
-            return new RectHV(node.point2D.x(), DEFAULTRECT.ymin(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
+            return new RectHV(node.point2D.x(), 0, 1, 1);
         else
-            return new RectHV(DEFAULTRECT.xmin(), node.point2D.y(), DEFAULTRECT.xmax(), DEFAULTRECT.ymax());
+            return new RectHV(0, node.point2D.y(), 1, 1);
     }
 
     public Point2D nearest(Point2D givenPoint) {
@@ -185,7 +284,13 @@ public class KdTree {
 
 
     public static void main(String[] args) {
-
+        KdTree kdTree = new KdTree();
+        kdTree.insert(new Point2D(0.7, 0.2));
+        kdTree.insert(new Point2D(0.5, 0.4));
+        //kdTree.insert(new Point2D(0.2, 0.3));
+        kdTree.draw();
+       // System.out.println(kdTree.contains(new Point2D(0.7, 0.2))); // returns true
+       // System.out.println(kdTree.contains(new Point2D(3, 2))); // returns false
 
     }
 
